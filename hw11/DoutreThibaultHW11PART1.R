@@ -232,8 +232,6 @@ plot_left = function(proportions_left,n){
 plot_left(proportions_left100,100)
 plot_left(proportions_left1000,1000)
 
-# Methods which overfit:
-# Methods which underfit:
 
 
 

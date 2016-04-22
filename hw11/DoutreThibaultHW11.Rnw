@@ -1,0 +1,437 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{stmaryrd}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{pdfpages}
+\usepackage{breqn}
+<<echo=FALSE>>=
+  options(width=60)
+
+  listing <- function(x, options) {
+    paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
+      x, "\\end{lstlisting}\n", sep = "")
+  }
+  knit_hooks$set(output=listing)
+@
+
+
+\newcount\colveccount
+\newcommand*\colvec[1]{
+        \global\colveccount#1
+        \begin{pmatrix}
+        \colvecnext
+}
+\def\colvecnext#1{
+        #1
+        \global\advance\colveccount-1
+        \ifnum\colveccount>0
+                \\
+                \expandafter\colvecnext
+        \else
+                \end{pmatrix}
+        \fi
+}
+\newcommand{\argmin}{\arg\!\min}
+
+\author{Thibault Doutre, Student ID 26980469}
+\title{STAT230 HW 11 \\
+University of California, Berkeley}
+\date{\today}
+\begin{document}
+
+\maketitle
+I would like to thank Shamindra for discussing the project with me.
+\section{}
+\subsection{Load data}
+<<>>=
+rm(list = ls())
+cat("\014")
+
+# Data -----------------------------------------------------
+
+makedata=function(p=20,wh=15,n=100){
+# This function generates p independent X variables and then uses wh of them
+# to generate Y based on coefficients determined by exp(exps) below.
+# Outside of the function, the data frame named data is further changed to
+# randomize the order of the variables so it's hard to tell for sure which
+# ones were used to generate Y.  You can always go back and examine switch
+# to figure out if your models include the right variables and which ones.
+  X=matrix(rnorm(n*p),n,p)
+  exps=seq(-1,-2.5,length=wh)
+  beta=rep(0,p)
+  beta[1:wh]=exp(exps)
+  Y=.5+X%*%beta+rnorm(n)
+  data = data.frame(Y,X)
+  colnames(data)=c("Y",letters[1:20])
+  switch=sample(20)+1
+  data=data[,c(1,switch)]
+  return(data)
+}
+
+
+set.seed(1)
+data=makedata()
+lmout=lm(Y~.,data=data)
+summary(lmout)
+coef(summary(lmout))[-1,]
+
+@
+\subsection{Compute CV MSE}
+<<>>=
+
+## # Cross validated MSE
+
+MSE_cv = function(data, nfold=10, formula="Y~."){
+  Y_cv = c()
+  nrows = nrow(data)
+  MSE_test = c()
+  for (i in seq(0, nrows-nfold, by=nrows/nfold)){
+    test = (i+1):(nfold+i)
+    train = -test
+    lm.fit = lm(formula, data=data[train,])
+    Ytest = predict(lm.fit, data[test,])
+    MSE_test = c(MSE_test, mean((data$Y[test]-Ytest)^2))
+  }
+  return(mean(MSE_test))
+}
+
+MSE_cv(data)
+@
+\subsection{Perform backward selection}
+<<>>=
+
+# Backward selection --------------------------------------
+
+backward_lm = function(data,nfold=10){
+  # Initialize with OLS
+  formula = "Y~."
+  lm.fit = lm(formula, data=data)
+  # Initialize outputs
+  MSE_test = c()
+  AIC = c()
+  BIC = c()
+  Cp = c()
+  next_to_remove = ""
+  variables = c()
+  n = nrow(data)
+  while(length(names(lm.fit$model))>1){
+    MSE = MSE_cv(data, nfold=nfold, formula)
+    MSE_test = c(MSE,MSE_test)
+    AIC = c(AIC(lm.fit),AIC)
+    BIC = c(BIC(lm.fit),BIC)
+    d = length(names(lm.fit$coefficients))-1
+    Cp = c(MSE + 2*d*mean((lm.fit$residuals)^2)/n,Cp)
+    t_values = coef(summary(lm.fit))[,"t value"]
+    # Variable with smallest t-value
+    next_to_remove = names(which.min(t_values[-1]))
+    # Store removed variables in the order
+    variables = c(next_to_remove,variables)
+    # Update formula
+    formula = paste(formula,"-",next_to_remove,sep="")
+    # Update model using new formula
+    lm.fit = update(lm.fit, formula)
+  }
+  # Intercept only
+  variables = variables
+  MSE = MSE_cv(data, nfold, formula)
+  MSE_test = c(MSE,MSE_test)
+  AIC = c(AIC(lm.fit),AIC)
+  BIC = c(BIC(lm.fit),BIC)
+  Cp = c(MSE,Cp)
+  return(list(variables = variables, MSE_test = MSE_test, 
+              AIC=AIC, BIC=BIC, Cp=Cp))
+}
+
+backward = backward_lm(data)
+backward
+
+# Generate data and performs backward selection
+backward_data = function(n=100,nfold=10){
+  data = makedata(n=n)
+  back=backward_lm(data,nfold=nfold)
+  back$names=names(data)[-1]
+  return(back)
+}
+@
+\subsection{Replicate}
+Here I parallelize the code in order to run it faster. I make use of Amazon AWS in order to run the simulations more quickly.
+<<>>=
+
+## # REPLICATE
+library(parallel)
+metric_values = function(B,n=100){
+  ncores = detectCores()-1
+  print(paste('Starting ', ncores, ' cores...'))
+  cl = makeCluster(ncores)
+  clusterExport(cl,list("makedata", "backward_lm", "MSE_cv",
+                        "backward_data"))
+  R = parSapply(cl, 1:B, function(i,...) 
+    { backward_data(n=n) } )
+  MSE_values = matrix(unlist(R["MSE_test",]), nrow = B, byrow = T)
+  AIC = matrix(unlist(R["AIC",]), nrow = B, byrow = T)
+  BIC = matrix(unlist(R["BIC",]), nrow = B, byrow = T)
+  Cp_values  = matrix(unlist(R["Cp",]), nrow = B, byrow = T)
+  variables = matrix(unlist(R["variables",]), nrow = B, byrow = T)
+  names = matrix(unlist(R["names",]), nrow = B, byrow = T)
+  stopCluster(cl)
+  print('Done.')
+  return(list(MSE=MSE_values, AIC=AIC, BIC=BIC, Cp=Cp_values,
+              variables=variables, names=names))
+}
+
+B = 100 # TODO: Change to 1000
+Rep_backward100 = metric_values(B,n=100)
+Rep_backward1000 = metric_values(B,n=1000)
+
+@
+\subsection{Plots}
+The plots are scaled between 0 and 1 for each of the four criteria.
+<<>>=
+
+# Plots -------------------------------------------------------
+
+plot_err = function(metrics,n){
+  m = sapply(metrics, colMeans)
+  scale_m = apply(m, MARGIN = 2, 
+                  FUN = function(X) (X - min(X))/diff(range(X)))
+  plot(scale_m[,1],type="b",xlab="p",ylab="err",
+       main=paste("Adjusted errors for n =",n), col="red")
+  lines(type="b",scale_m[,2],col="blue")
+  lines(type="b",scale_m[,3],col="black")
+  lines(type="b",scale_m[,4],col="green")
+  legend("topright",c("CV MSE","AIC","BIC","Cp"),
+         col=c("red","blue","black","green"),lty=1)
+}
+
+plot_err(Rep_backward100[-c(5,6)],100)
+plot_err(Rep_backward1000[-c(5,6)],1000)
+
+
+plot_model_sizes = function(metrics,n){
+  m = lapply(metrics, function(X) {apply(X,1,which.min)})
+  par(mfrow=c(2,2),oma=c(0,0,3,0))
+  hist(m$MSE,main="MSE",xlim=c(0,21),breaks=0:21,xlab="p")
+  hist(m$AIC,main="AIC",xlim=c(0,21),breaks=0:21,xlab="p")
+  hist(m$BIC,main="BIC",xlim=c(0,21),breaks=0:21,xlab="p")
+  hist(m$Cp ,main="Cp ",xlim=c(0,21),breaks=0:21,xlab="p")
+  title(paste("Empirical distribution of best model sizes\nfor n = ",n),
+        outer=TRUE)
+  par(mfrow=c(1,1),oma=c(0,0,0,0))
+}
+
+plot_model_sizes(Rep_backward100[-c(5,6)],n=100)
+plot_model_sizes(Rep_backward1000[-c(5,6)],n=1000)
+
+@
+\subsection{Proportions}
+Here I calculate the proportion of times each coefficient was left out (for the first 15) and put in (for the last 5).
+<<>>=
+
+# Proportions -----------------------------------------------
+
+## # left out first 15
+prop_left = function(metrics){
+  optimum = lapply(metrics[-c(5,6)], function(X) 
+    {apply(X,1,which.min)})
+  proportions_left = optimum
+  for (i in 1:B){
+    proportions_left$MSE[i] = 1-length(intersect(
+      metrics$variables[i,1:(optimum$MSE[i]-1)],
+      metrics$names[i,1:15]))/15
+    proportions_left$AIC[i] = 1-length(intersect(
+      metrics$variables[i,1:(optimum$AIC[i]-1)],
+      metrics$names[i,1:15]))/15
+    proportions_left$BIC[i] = 1-length(intersect(
+      metrics$variables[i,1:(optimum$BIC[i]-1)],
+      metrics$names[i,1:15]))/15
+    proportions_left$Cp[i] =  1-length(intersect(
+      metrics$variables[i,1:(optimum$Cp[i] -1)], 
+      metrics$names[i,1:15]))/15
+  }
+  proportions_left
+}
+
+proportions_left100 = prop_left(Rep_backward100)
+proportions_left1000 = prop_left(Rep_backward1000)
+
+
+## # kept last 5
+prop_kept = function(metrics){
+  optimum = lapply(metrics[-c(5,6)], function(X) 
+    {apply(X,1,which.min)})
+  proportions_kept = optimum
+  for (i in 1:B){
+    proportions_kept$MSE[i] = length(intersect(
+      metrics$variables[i,1:(optimum$MSE[i]-1)],
+      metrics$names[i,16:20]))/5
+    proportions_kept$AIC[i] = length(intersect(
+      metrics$variables[i,1:(optimum$AIC[i]-1)],
+      metrics$names[i,16:20]))/5
+    proportions_kept$BIC[i] = length(intersect(
+      metrics$variables[i,1:(optimum$BIC[i]-1)],
+      metrics$names[i,16:20]))/5
+    proportions_kept$Cp[i] =  length(intersect(
+      metrics$variables[i,1:(optimum$Cp[i])-1 ],
+      metrics$names[i,16:20]))/5
+  }
+  proportions_kept
+}
+
+proportions_kept100 = prop_kept(Rep_backward100)
+proportions_kept1000 = prop_kept(Rep_backward1000)
+
+
+
+# Plot ------------------------------------------------------
+
+plot_kept = function(proportions_kept,n){
+  par(mfrow=c(2,2),oma=c(0,0,3,0))
+  hist(proportions_kept$MSE,main="MSE",
+       xlim=c(0,1),xlab="ratio")
+  hist(proportions_kept$AIC,main="AIC",
+       xlim=c(0,1),xlab="ratio")
+  hist(proportions_kept$BIC,main="BIC",
+       xlim=c(0,1),xlab="ratio")
+  hist(proportions_kept$Cp, main="Cp", 
+       xlim=c(0,1),xlab= "ratio")
+  title(paste("Proportion of times each coefficient was put in\nfor n = ",n),
+        outer=TRUE)
+  par(mfrow=c(1,1),oma=c(0,0,0,0))
+}
+
+plot_kept(proportions_kept100,100)
+plot_kept(proportions_kept1000,1000)
+
+
+plot_left = function(proportions_left,n){
+  par(mfrow=c(2,2),oma=c(0,0,3,0))
+  hist(proportions_left$MSE,main="MSE",xlim=c(0,1),xlab="ratio")
+  hist(proportions_left$AIC,main="AIC",xlim=c(0,1),xlab="ratio")
+  hist(proportions_left$BIC,main="BIC",xlim=c(0,1),xlab="ratio")
+  hist(proportions_left$Cp, main="Cp",xlim=c(0,1),xlab= "ratio")
+  title(paste("Proportion of times each coefficient was left out\nfor n = ",n),
+        outer=TRUE)
+  par(mfrow=c(1,1),oma=c(0,0,0,0))
+}
+
+plot_left(proportions_left100,100)
+plot_left(proportions_left1000,1000)
+
+@
+BIC has a heavier penalty term than AIC or Cp so it tends to favor simpler models, we can see it here: the proportion of left out parameters for the first 15 variables is greater for this statistic. This is also similar to Mallow’s Cp. AIC has the lowest error, as expected because it favors more complex models than BIC.We can also notice that as n increases, the empirical variance reduces.
+
+\section{}
+\subsection{Load data}
+Here I load the data with outputing the true beta.
+<<>>=
+library(pls)
+rm(list = ls())
+cat("\014")
+
+# Data --------------------------------------------------
+
+makedata=function(p=20,wh=15,n=100){
+  X=matrix(rnorm(n*p),n,p)
+  exps=seq(-1,-2.5,length=wh)
+  beta=rep(0,p)
+  beta[1:wh]=exp(exps)
+  Y=.5+X%*%beta+rnorm(n)
+  data = data.frame(Y,X)
+  colnames(data)=c("Y",letters[1:20])
+  switch=sample(20)+1
+  data=data[,c(1,switch)]
+  names(beta)=names(data)[switch]
+  return(list(df=data,beta=beta))
+}
+
+set.seed(1)
+data=makedata()
+data$beta
+
+@
+\subsection{Replicate}
+Here again I make use of parrallelization.
+<<>>=
+
+# Replicate ------------------------------------------------
+cv_pcr = function(n){
+  data = makedata(n=n)
+  df = data$df
+  beta0 = data$beta
+  pcr.fit = pcr(Y~0+., ncomp=20, data=df, validation ="CV")
+  cv_error = as.data.frame(RMSEP(pcr.fit)$val)[1,]
+  names(cv_error) = 0:20
+  # beta pcr
+  beta0 = data$beta
+  beta_pcr = rev(sort(pcr.fit$coefficients[,,20]))
+  return(list(CV=cv_error, beta0=beta0, beta=beta_pcr))
+}
+
+
+library(parallel)
+
+pcr_rep = function(B,n=100){
+  ncores = detectCores()-1
+  print(paste('Starting ', ncores, ' cores...'))
+  cl = makeCluster(ncores)
+  clusterEvalQ(cl,library(pls))
+  clusterExport(cl,list("cv_pcr","makedata"))
+  R = parSapply(cl, 1:B, function(i,...) 
+  { cv_pcr(n=n) } )
+  CV = matrix(unlist(R["CV",]), nrow = B, byrow = T)
+  beta0 = matrix(unlist(R["beta0",]), nrow = B, byrow = T)[1,]
+  beta = matrix(unlist(R["beta",]), nrow = B, byrow = T)
+  stopCluster(cl)
+  print('Done.')
+  return(list(CV=CV,beta=beta,beta0=beta0))
+}
+
+B = 100 # TODO: Change to 1000
+Rep_pcr100 = pcr_rep(B,n=100)
+Rep_pcr1000 = pcr_rep(B,n=1000)
+@
+\subsection{Plots}
+<<>>=
+# Plot -----------------------------------------------------
+
+# n=100
+boxplot(Rep_pcr100$CV, 
+        main=paste("CV error for PCR with n = ",100),
+        xlab = "Number of components", 
+        ylab="test error",names=0:20)
+
+#n=1000
+boxplot(Rep_pcr1000$CV, 
+        main=paste("CV error for PCR with n = ",1000),
+        xlab = "Number of components", 
+        ylab="test error",names=0:20)
+
+#n=100
+boxplot(Rep_pcr100$beta, 
+        main=paste("beta_hat for PCR with n = ",100),
+        xlab = "Number of components", 
+        ylab="beta")
+points(1:20,Rep_pcr1000$beta0,col="red")
+
+#n=1000
+boxplot(Rep_pcr1000$beta, 
+        main=paste("beta_hat for PCR with n = ",1000),
+        xlab = "Number of components", 
+        ylab="beta")
+points(1:20,Rep_pcr1000$beta0,col="red")
+@
+The CV error goes down as we increase the number of components. The true beta remains in the confidence interval even if there seems to be a little biased.
+
+\end{document}
+
+
+
+
+
+
+
+
+
