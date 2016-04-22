@@ -1,0 +1,202 @@
+### HW 4.  GLS and correlated errors.
+### Part 2.  (Part 1 is the problems from the book.)
+
+### 1. Generate correlated errors.
+
+n = 100
+r = 0.05
+G = matrix(r,n,n) + diag(1-r,n,n)
+chol_G = chol(G)
+
+set.seed(12345)
+n_replications = 1000
+epsilons = matrix(rnorm(n*n_replications),n,n_replications)
+epsilons = as.data.frame(chol_G %*% epsilons)
+head(epsilons)[,1:6]
+  
+S_n = colSums(epsilons)
+sigma_values = diag(cov(epsilons))
+# Var(Sn)
+var(S_n)
+
+par(mfrow = c(1,2))
+
+# Empirical value of sigma
+sigma_hat = mean(sigma_values)
+sigma_hat
+hist(sigma_values)
+abline(v = 1)
+
+# Empirical value of r
+non_diag_terms = (matrix(1,n,n_replications)-diag(1,n,n_replications))>0
+var_hat = vector(length = 1000)
+r_hat = vector(length = 1000)
+for(i in 1:1000){
+  cov_hat    = epsilons[,i] %*% t(epsilons[,i])
+  var_hat[i] = mean(diag(cov_hat))
+  r_hat[i] = mean(cov_hat[lower.tri(cov_hat, diag = FALSE)]/var_hat[i])
+}
+mean(r_hat)
+hist(r_hat)
+abline(v = r)
+
+par(mfrow = c(1,1))
+
+# Relationship between var(Sn), r, sigma satisfied?
+abs(var(S_n)-n*sigma_hat^2-n*(n-1)*sigma_hat^2*r)/var(S_n)
+
+# True value of S_n
+true_VarSn = n*1+n*(n-1)*1*r
+true_VarSn
+
+# Relative error
+abs(true_VarSn- var(S_n))/true_VarSn
+
+### 2. OLS
+
+X = matrix(rnorm(100000),100,1000)
+Y = X + epsilons
+
+ols = function(X,Y){
+  n = nrow(X)
+  p = ncol(X)
+  beta_hat_values = vector(length = p)
+  epsilon_values = matrix(nrow = n, ncol = p)
+  for (i in 1:p){
+    Xi = X[,i]
+    Yi = Y[,i]
+    beta_hat_values[i] = solve(t(Xi) %*% Xi) %*% t(Xi)%*%Yi
+    epsilon_values[,i] = Yi-beta_hat_values[i] %*% Yi
+  }
+  list(beta_hat_values = beta_hat_values, epsilons = epsilon_values)
+}
+
+beta_hat_values = ols(X,Y)$beta_hat_values
+
+# Estimate of beta
+mean(beta_hat_values)
+hist(beta_hat_values)
+abline(v = 1)
+
+
+### 3. One Step GLS
+X = matrix(rnorm(100000),100,1000)
+Y = X + epsilons
+
+gls = function(X,Y,epsilons, beta_hat_ols){
+  n = nrow(X)
+  p = ncol(X)
+  non_diag_terms = (matrix(1,n,p)-diag(1,n,p))>0
+  beta_hat_values = beta_hat_ols
+  var_hat_values = vector(length = p)
+  r_hat_values = vector(length = p)
+  epsilons_update = epsilons
+  for (i in 1:p){
+    # Residuals
+    e = Y[,i] - X[,i]*beta_hat_values[i]
+    # Empirical value of cov
+    cov_hat = e %*% t(e)
+    # Empirical value of var
+    var_hat_values[i] = mean(diag(cov_hat))
+    # Empirical value of r
+    r_hat_values[i] = mean(cov_hat[lower.tri(cov_hat, diag = FALSE)]/var_hat_values[i])
+    # Estimate G
+    G_hat = matrix(r_hat_values[i],n,n) + diag(var_hat_values[i]-r_hat_values[i],n,n)
+    G_hat_inv = solve(G_hat)
+    # Add beta hat value
+    Xi = X[,i]
+    Yi = Y[,i]
+    beta_hat_values[i] = solve(t(Xi) %*% G_hat_inv %*% Xi) %*% t(Xi) %*% G_hat_inv %*% Yi
+    # Update epsilon
+    epsilons_update[,i] = G_hat_inv %*% e
+  }
+  return(list(beta_hat_values = beta_hat_values, 
+              epsilons = epsilons_update,
+              r_hat_values = r_hat_values,
+              var_hat_values = var_hat_values))
+}
+
+beta_hat_ols = ols(X,Y)$beta_hat_values
+gls_out = gls(X,Y,epsilons,beta_hat_ols)
+
+par(mfrow = c(1,3))
+gls_out$epsilons
+
+# Estimate of beta
+beta_hat_values = gls_out$beta_hat_values
+mean(beta_hat_values)
+hist(beta_hat_values)
+abline(v = 1)
+
+# Empirical value of sigma
+sigma_values = sqrt(gls_out$var_hat_values)
+mean(sigma_values)
+hist(sigma_values)
+abline(v = 1)
+
+# Empirical value of r
+r_values = gls_out$r_hat_values
+mean(r_values)
+hist(r_values)
+abline(v = r)
+
+par(mfrow = c(1,1))
+
+
+### 4. Five Step GLS
+
+gls_it = function(X,Y,n_it){
+  # Step zero: ols
+  ols_out = ols(X,Y)
+  epsilons_update = ols_out$epsilons
+  beta_hat_update = ols_out$beta_hat_values
+  # Iterations
+  beta_hat_values_it = matrix(nrow = 1000, ncol = n_it)
+  var_hat_values_it = matrix(nrow = 1000, ncol = n_it)
+  r_hat_values_it = matrix(nrow = 1000, ncol = n_it)
+  for (j in 1:n_it){
+    gls_out = gls(X,Y,epsilons_update,beta_hat_update)
+    beta_hat_values_it[,j] = gls_out$beta_hat_values
+    var_hat_values_it[,j] = gls_out$var_hat_values
+    r_hat_values_it[,j] = gls_out$r_hat_values
+    epsilons_update = gls_out$epsilons
+    beta_hat_update = beta_hat_values_it[,j]
+    cat('Step ',j,' done.\n')
+  }
+  list(beta_hat_values_it = beta_hat_values_it,
+       var_hat_values_it = var_hat_values_it,
+       r_hat_values_it = r_hat_values_it)
+}
+gls_it_out = gls_it(X,Y,5)
+beta_hat_values_it = gls_it_out$beta_hat_values_it
+var_hat_values_it = gls_it_out$var_hat_values_it
+r_hat_values_it = gls_it_out$r_hat_values_it
+
+boxplot(beta_hat_values_it, main = "Five Step GLS",
+        xlab = "Iterations", ylab = "Beta estimation",
+        range=0)
+abline(h=1)
+
+par(mfrow = c(1,3))
+# Estimate of beta
+beta_hat_values = beta_hat_values_it[,5]
+mean(beta_hat_values)
+hist(beta_hat_values)
+abline(v = 1)
+
+# Empirical value of sigma
+sigma_values = sqrt(var_hat_values_it[,5])
+sigma_hat = mean(sigma_values)
+sigma_hat
+hist(sigma_values)
+abline(v = 1)
+
+# Empirical value of r
+r_values = r_hat_values_it[,5]
+r_hat = mean(r_values)
+r_hat
+hist(r_values)
+abline(v = r)
+
+par(mfrow = c(1,1))
+

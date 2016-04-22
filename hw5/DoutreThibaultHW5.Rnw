@@ -1,0 +1,171 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{pdfpages}
+\usepackage{breqn}
+
+\newcount\colveccount
+\newcommand*\colvec[1]{
+        \global\colveccount#1
+        \begin{pmatrix}
+        \colvecnext
+}
+\def\colvecnext#1{
+        #1
+        \global\advance\colveccount-1
+        \ifnum\colveccount>0
+                \\
+                \expandafter\colvecnext
+        \else
+                \end{pmatrix}
+        \fi
+}
+\newcommand{\argmin}{\arg\!\min}
+
+\author{Thibault Doutre, Student ID 26980469}
+\title{STAT230 HW 5 \\
+University of California, Berkeley}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Theory}
+\subsection{}
+I note $E$ the elite tolerance, $R$ the repression and $M$ the mass tolerance. 
+
+\begin{align}
+R &= \beta_1 M + \beta_2 E+ \delta \\
+&= X \beta+\delta
+\end{align}
+
+Where $X = \begin{bmatrix} M&E\\ \end{bmatrix}$ and $\beta = \begin{bmatrix} \beta_1 \\ \beta_2 \\ \end{bmatrix}$.\\
+Using the OLS estimate:
+\begin{equation}
+\hat{\beta}=(X^TX)^{-1}X^TR
+\end{equation}\\
+Here, we have:
+\begin{align}
+X^TX &= n\begin{bmatrix} 1&0.52\\ 0.52&1 \end{bmatrix} \\
+X^TR &= n\begin{bmatrix} -0.26\\-0.42\\ \end{bmatrix}
+\end{align}
+Therefore:
+\begin{align}
+\hat{\beta} &= \begin{bmatrix} 1&0.52\\ 0.52&1 \end{bmatrix}^{-1}\begin{bmatrix} -0.26\\-0.42\\ \end{bmatrix} = \begin{bmatrix} -0.057\\-0.390\\ \end{bmatrix}
+\end{align}
+
+\subsection{}
+Using the fact that:
+\begin{equation}
+1=\hat{\beta_1}^2+\hat{\beta_2}^2+2\hat{\beta_1}\hat{\beta_2}*0.52+\hat{\sigma}^2
+\end{equation}
+We come up with:
+\begin{equation}
+\hat{\sigma}^2 = 0.821
+\end{equation}
+However, with the multiplicative correction term $ \frac{n}{n-p}$ in front of $\hat{\sigma}^2$,  we have:
+\begin{equation}
+\hat{\sigma}^2 = 0.896
+\end{equation}
+We will use this value for the following questions.
+
+\subsection{}
+Since $n=36$ understate SE. Here the intercept variable is masked and I choose $p = 3$.
+\begin{align}
+SE &= \bigg(\hat{\sigma}^2 (X^TX)^{-1}_{(1,1)} \bigg)^{1/2} \\
+&= 0.185
+\end{align}
+Note that, here we have: $(X^TX)^{-1}_{(1,1)}=(X^TX)^{-1}_{(2,2)}$
+
+\subsection{}
+\begin{align}
+Var(\hat{\beta_1}-\hat{\beta_2}|X) &= Var(\hat{\beta_1})+Var(\hat{\beta_2}|X)-2Cov(\hat{\beta_1},\hat{\beta_2}|X) \\
+&= V_{11}+V_{22}-2V_{12}
+\end{align}
+Where:
+\begin{align}
+V &= \hat{\sigma}^2(X^TX)^{-1} \\
+&= \frac{\hat{\sigma}^2}{n}\begin{bmatrix} 1&0.52\\ 0.52&1 \end{bmatrix}^{-1} \\
+&= \begin{bmatrix} 0.034&-0.018\\ -0.018&0.034 \end{bmatrix}
+\end{align}
+Therefore, using the formula above:
+\begin{align}
+Var(\hat{\beta_1}-\hat{\beta_2}|X) &= 0.104\\
+SE(\hat{\beta_1}-\hat{\beta_2})&=0.322.
+\end{align}
+Since $\hat{\beta_1}-\hat{\beta_2} = 0.33$, the difference is not significant; the standard error is too high. 
+If we take $\beta_1$ alone, it seems to be not significant, and $\beta_2$ seems to be significant. However, we cannot say that the difference is not significant because the null hypothesis of $\beta_1=\beta_0$ is viable. We will see that next when performing the p-values of the t-tests.
+
+\section{Code}
+
+\subsection{}
+Here I compute the estimate of $\beta$, and its adjusted variance.
+<<>>=
+## # Paramaters
+n = 36
+p = 3
+
+## # Compute A = X'X
+A = matrix(c(1,0.52,0.52,1),ncol=2)*n
+beta_hat = solve(A,c(-0.26,-0.42)*n)
+beta_hat
+
+## # Compute adjusted variance
+var_hat = n/(n-p)*(1-beta_hat[1]^2-beta_hat[2]^2-
+                     2*beta_hat[1]*beta_hat[2]*0.52)
+var_hat
+@
+Then, noticing that the standard error (SE) is the same for $\hat{\beta}_1$ or $\hat{\beta}_2$, we have:
+<<>>=
+## # Compute adjusted SE
+# SE for both beta coefficients 
+SE = sqrt(var_hat*solve(A)[1,1])
+SE
+
+## # Compute adjusted SE
+V = var_hat*solve(A)
+var_diff = V[1,1]+V[2,2]-2*V[1,2]
+SE_diff = sqrt(var_diff)
+diff = beta_hat[1]-beta_hat[2]
+SE_diff
+@
+\subsection{}
+We know that, under the null, $\hat{\beta}/SE$ is following a student distribution with $n-p$ degrees of freedom. I then compute the p-values of the coefficients. It is useful to note that since the $t$ distribution is two sided, I can calculate the p-value with $2P(X>|t|)$ where X is distributed as a student-t distribution.
+<<>>=
+## # Student test for beta 1.
+SE1 = sqrt(var_hat*solve(A)[1,1])
+t1 = beta_hat[1]/SE1
+2*(1-pt(abs(t1),df=n-p)) #pvalue
+
+## # Student test for beta 2.
+SE2 = sqrt(var_hat*solve(A)[2,2])
+t2 = beta_hat[2]/SE2
+2*(1-pt(abs(t2),df=n-p)) #pvalue
+@
+Since the p-value for $\hat{\beta}_1$ is greater than 0.1, we cannot say anything about rejecting the null hypothesis. However, the p-value for $\hat{\beta}_2$ is less than 0.05. Therefore, it makes sense to reject the null hypothesis and say that $\hat{\beta}_2$ is significant.
+
+\subsection{}
+Now, when doing the t-test to the difference $\hat{\beta}_1 - \hat{\beta}_2$, we observe the following:
+<<>>=
+## # Student test for the difference of beta 1 and beta 2
+t = (beta_hat[1]-beta_hat[2])/SE_diff
+2*(1-pt(abs(t),df=n-p)) #pvalue
+@
+Here, the p-value is big enough not to reject the null hypothesis $\hat{\beta}_1 = \hat{\beta}_2$. This is due to the correlation betwen $\beta_1$ and $\beta_2$.
+As stating in the Theory part, $\beta_1$ alone is not significant. However, we cannot say that the difference $\beta_1-\beta_0$ is not significant by looking at the p-values because the null hypothesis of $\beta_1=\beta_0$ cannot be rejected that easily.\\\\
+As a side note, I would add that we have to be careful with the definition of p-values. Having a high p-value means that the data is likely with true null, and a low p-value means that the data is unlikely with a true null, no more.
+
+
+\end{document}
+
+
+
+
+
+
+
+
+

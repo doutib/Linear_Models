@@ -1,0 +1,80 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{bbm}
+\usepackage{amsmath}
+%\usepackage{mathtools}
+\newcount\colveccount
+\newcommand*\colvec[1]{
+        \global\colveccount#1
+        \begin{pmatrix}
+        \colvecnext
+}
+\def\colvecnext#1{
+        #1
+        \global\advance\colveccount-1
+        \ifnum\colveccount>0
+                \\
+                \expandafter\colvecnext
+        \else
+                \end{pmatrix}
+        \fi
+}
+\newcommand{\argmin}{\arg\!\min}
+
+\author{Thibault Doutre, Student ID 26980469}
+\title{STAT230 HW 1 \\
+University of California, Berkeley}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\section{Load data} 
+
+<<>>=
+load('family.rda')
+attach(family)
+@
+
+\section{Least Squares Regression Line
+ $y = b*x + a$} 
+ 
+<<>>=
+b = sum((weight-mean(weight))*(height-mean(height)))/
+  sum((height-mean(height))^2)
+a = mean(weight) - b*mean(height)
+
+plot(height,weight, main = "Least Squares Regression Line")
+abline(a,b)
+@
+
+
+<<>>=
+regcoef = function(df=family[4:5]){
+  x = df[,1]
+  y = df[,2]
+  b = sum((y-mean(y))*(x-mean(x)))/sum((x-mean(x))^2)
+  a = mean(y) - b*mean(x)
+  return(c(a,b))
+} 
+
+regcoef()
+@
+
+
+<<>>=
+regline = function(df=family[4:5]){
+  coeff = regcoef(df)
+  plot(height,weight, main = "Least Squares Regression Line")
+  abline(coeff[1],coeff[2])
+}
+
+regline()
+@
+
+
+
+
+\end{document}

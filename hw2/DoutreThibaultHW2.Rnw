@@ -1,0 +1,127 @@
+\documentclass[11pt]{article}
+\usepackage{amsmath}
+\usepackage{stmaryrd}
+\usepackage{bbm}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{pdfpages}
+
+\newcount\colveccount
+\newcommand*\colvec[1]{
+        \global\colveccount#1
+        \begin{pmatrix}
+        \colvecnext
+}
+\def\colvecnext#1{
+        #1
+        \global\advance\colveccount-1
+        \ifnum\colveccount>0
+                \\
+                \expandafter\colvecnext
+        \else
+                \end{pmatrix}
+        \fi
+}
+\newcommand{\argmin}{\arg\!\min}
+
+\author{Thibault Doutre, Student ID 26980469}
+\title{STAT230 HW 2 \\
+University of California, Berkeley}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\section{} 
+
+<<>>=
+load('family.rda')
+attach(family)
+@
+
+ 
+<<>>=
+intercept = rep(1,length(weight))
+X = cbind(intercept,height, bmi)
+betahat = solve(crossprod(X,X), t(X) %*% weight)
+betahat
+residuals = weight - X %*% betahat
+residuals
+@
+
+\section{} 
+<<>>=
+
+regcoef = function(df=family[4:5]){
+  x = df[,1]
+  y = df[,2]
+  b = sum((y-mean(y))*(x-mean(x)))/sum((x-mean(x))^2)
+  a = mean(y) - b*mean(x)
+  return(c(a,b))
+} 
+regline = function(df=family[4:5]){
+  coeff = regcoef(df)
+  plot(height,weight, main = "Least Squares Regression Line",
+       cex = bmi*0.06)
+  abline(coeff[1],coeff[2])
+}
+regline()
+
+@
+bmi is increasing with both weight and height.
+\section{}
+
+<<>>=
+
+library(rgl)
+
+par3d(params=list(
+  windowRect=c(100,100,600,600)))
+view3d( theta = 70, phi = 20)
+
+plot3d(X[,2],X[,3],weight,"height","bmi","weight",
+       col='darkgray')
+planes3d(betahat[2],betahat[3],c=-1,betahat[1],add=TRUE,
+         alpha=.5,col="lightblue")
+
+# Save pdf
+rgl.postscript("plot.pdf","pdf")
+
+@
+\includepdf{plot.pdf}
+
+\section{}
+
+<<>>=
+
+M = X[,1:2]
+N = X[,3]
+Y = weight
+
+# step 1
+gamma_1 = solve(crossprod(M,M), crossprod(M,Y))
+gamma_1
+f = Y - M %*% gamma_1
+
+# step 2
+gamma_2 = solve(crossprod(M,M), crossprod(M,N))
+gamma_2
+g = N - M %*% gamma_2
+
+# step 3
+gamma_3 = sum(f*g)/sum(g*g)
+gamma_3
+e = f-g*gamma_3
+
+# step 4
+betahatBis = c(gamma_1-gamma_2*gamma_3,gamma_3)
+betahatBis
+
+# Check validity 
+abs(betahat-betahatBis)
+@
+
+
+
+\end{document}
