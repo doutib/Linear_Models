@@ -182,7 +182,7 @@ metric_values = function(B,n=100){
               variables=variables, names=names))
 }
 
-B = 100 # TODO: Change to 1000
+B = 1000
 Rep_backward100 = metric_values(B,n=100)
 Rep_backward1000 = metric_values(B,n=1000)
 
@@ -389,7 +389,7 @@ pcr_rep = function(B,n=100){
   return(list(CV=CV,beta=beta,beta0=beta0))
 }
 
-B = 100 # TODO: Change to 1000
+B = 1000 
 Rep_pcr100 = pcr_rep(B,n=100)
 Rep_pcr1000 = pcr_rep(B,n=1000)
 @
