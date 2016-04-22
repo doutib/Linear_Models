@@ -7,15 +7,7 @@
 \usepackage{mathtools}
 \usepackage{pdfpages}
 \usepackage{breqn}
-<<echo=FALSE>>=
-  options(width=60)
-
-  listing <- function(x, options) {
-    paste("\\begin{lstlisting}[basicstyle=\\ttfamily,breaklines=true]\n",
-      x, "\\end{lstlisting}\n", sep = "")
-  }
-  knit_hooks$set(output=listing)
-@
+\usepackage[utf8]{inputenc}
 
 
 \newcount\colveccount

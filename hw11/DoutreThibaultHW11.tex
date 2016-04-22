@@ -56,7 +56,7 @@
 \usepackage{mathtools}
 \usepackage{pdfpages}
 \usepackage{breqn}
-
+\usepackage[utf8]{inputenc}
 
 
 \newcount\colveccount
@@ -94,9 +94,7 @@ I would like to thank Shamindra for discussing the project with me.
 \hlkwd{rm}\hlstd{(}\hlkwc{list} \hlstd{=} \hlkwd{ls}\hlstd{())}
 \hlkwd{cat}\hlstd{(}\hlstr{"\textbackslash{}014"}\hlstd{)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
-\end{lstlisting}
-\begin{alltt}
+\end{kframe}\begin{kframe}\begin{alltt}
 \hlcom{# Data -----------------------------------------------------}
 
 \hlstd{makedata}\hlkwb{=}\hlkwa{function}\hlstd{(}\hlkwc{p}\hlstd{=}\hlnum{20}\hlstd{,}\hlkwc{wh}\hlstd{=}\hlnum{15}\hlstd{,}\hlkwc{n}\hlstd{=}\hlnum{100}\hlstd{)\{}
@@ -124,7 +122,7 @@ I would like to thank Shamindra for discussing the project with me.
 \hlstd{lmout}\hlkwb{=}\hlkwd{lm}\hlstd{(Y}\hlopt{~}\hlstd{.,}\hlkwc{data}\hlstd{=data)}
 \hlkwd{summary}\hlstd{(lmout)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
+\begin{verbatim}
 ## 
 ## Call:
 ## lm(formula = Y ~ ., data = data)
@@ -157,17 +155,16 @@ I would like to thank Shamindra for discussing the project with me.
 ## f            0.234947   0.124049   1.894 0.061887 .  
 ## o            0.131873   0.121603   1.084 0.281460    
 ## ---
-## Signif. codes:  
-## 0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
 ## Residual standard error: 1.091 on 79 degrees of freedom
 ## Multiple R-squared:  0.5177,	Adjusted R-squared:  0.3955 
 ## F-statistic: 4.239 on 20 and 79 DF,  p-value: 1.927e-06
-\end{lstlisting}
+\end{verbatim}
 \begin{alltt}
 \hlkwd{coef}\hlstd{(}\hlkwd{summary}\hlstd{(lmout))[}\hlopt{-}\hlnum{1}\hlstd{,]}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
+\begin{verbatim}
 ##       Estimate Std. Error     t value     Pr(>|t|)
 ## b  0.561786874 0.12355483  4.54686293 1.936786e-05
 ## c  0.462792924 0.11793750  3.92405250 1.847248e-04
@@ -189,7 +186,7 @@ I would like to thank Shamindra for discussing the project with me.
 ## q  0.004261679 0.12568653  0.03390720 9.730367e-01
 ## f  0.234946715 0.12404874  1.89398708 6.188702e-02
 ## o  0.131873284 0.12160279  1.08445934 2.814597e-01
-\end{lstlisting}
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 \subsection{Compute CV MSE}
@@ -214,9 +211,9 @@ I would like to thank Shamindra for discussing the project with me.
 
 \hlkwd{MSE_cv}\hlstd{(data)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
+\begin{verbatim}
 ## [1] 1.526669
-\end{lstlisting}
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 \subsection{Perform backward selection}
@@ -268,35 +265,31 @@ I would like to thank Shamindra for discussing the project with me.
 \hlstd{backward} \hlkwb{=} \hlkwd{backward_lm}\hlstd{(data)}
 \hlstd{backward}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
+\begin{verbatim}
 ## $variables
-##  [1] "a" "b" "c" "d" "e" "j" "f" "k" "g" "i" "l" "o" "s" "t"
-## [15] "p" "r" "n" "q" "h" "m"
+##  [1] "a" "b" "c" "d" "e" "j" "f" "k" "g" "i" "l" "o" "s" "t" "p" "r" "n"
+## [18] "q" "h" "m"
 ## 
 ## $MSE_test
-##  [1] 1.980806 1.831603 1.647572 1.511213 1.399686 1.376298
-##  [7] 1.383213 1.346406 1.315683 1.319069 1.284828 1.301687
-## [13] 1.336176 1.356568 1.373401 1.394812 1.415984 1.450824
-## [19] 1.487838 1.521835 1.526669
+##  [1] 1.980806 1.831603 1.647572 1.511213 1.399686 1.376298 1.383213
+##  [8] 1.346406 1.315683 1.319069 1.284828 1.301687 1.336176 1.356568
+## [15] 1.373401 1.394812 1.415984 1.450824 1.487838 1.521835 1.526669
 ## 
 ## $AIC
-##  [1] 354.5459 345.6160 335.7371 326.7194 319.8356 315.5372
-##  [7] 313.3477 311.4899 309.4718 308.0315 307.5168 307.0589
-## [13] 307.3790 308.9469 310.6606 312.5164 314.3918 316.3248
-## [19] 318.2997 320.1792 321.6355
+##  [1] 354.5459 345.6160 335.7371 326.7194 319.8356 315.5372 313.3477
+##  [8] 311.4899 309.4718 308.0315 307.5168 307.0589 307.3790 308.9469
+## [15] 310.6606 312.5164 314.3918 316.3248 318.2997 320.1792 321.6355
 ## 
 ## $BIC
-##  [1] 359.7563 353.4315 346.1578 339.7452 335.4666 333.7734
-##  [7] 334.1891 334.9365 335.5235 336.6883 338.7788 340.9261
-## [13] 343.8514 348.0245 352.3433 356.8043 361.2849 365.8231
-## [19] 370.4031 374.8878 378.9493
+##  [1] 359.7563 353.4315 346.1578 339.7452 335.4666 333.7734 334.1891
+##  [8] 334.9365 335.5235 336.6883 338.7788 340.9261 343.8514 348.0245
+## [15] 352.3433 356.8043 361.2849 365.8231 370.4031 374.8878 378.9493
 ## 
 ## $Cp
-##  [1] 1.980806 1.866557 1.709649 1.594614 1.501435 1.495721
-##  [7] 1.520640 1.500670 1.485041 1.503154 1.484287 1.515765
-## [13] 1.565825 1.604282 1.639406 1.679407 1.719175 1.772749
-## [19] 1.828613 1.881109 1.902802
-\end{lstlisting}
+##  [1] 1.980806 1.866557 1.709649 1.594614 1.501435 1.495721 1.520640
+##  [8] 1.500670 1.485041 1.503154 1.484287 1.515765 1.565825 1.604282
+## [15] 1.639406 1.679407 1.719175 1.772749 1.828613 1.881109 1.902802
+\end{verbatim}
 \begin{alltt}
 \hlcom{# Generate data and performs backward selection}
 \hlstd{backward_data} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{n}\hlstd{=}\hlnum{100}\hlstd{,}\hlkwc{nfold}\hlstd{=}\hlnum{10}\hlstd{)\{}
@@ -319,7 +312,8 @@ Here I parallelize the code in order to run it faster. I make use of Amazon AWS 
   \hlstd{ncores} \hlkwb{=} \hlkwd{detectCores}\hlstd{()}\hlopt{-}\hlnum{1}
   \hlkwd{print}\hlstd{(}\hlkwd{paste}\hlstd{(}\hlstr{'Starting '}\hlstd{, ncores,} \hlstr{' cores...'}\hlstd{))}
   \hlstd{cl} \hlkwb{=} \hlkwd{makeCluster}\hlstd{(ncores)}
-  \hlkwd{clusterExport}\hlstd{(cl,}\hlkwd{list}\hlstd{(}\hlstr{"makedata"}\hlstd{,} \hlstr{"backward_lm"}\hlstd{,} \hlstr{"MSE_cv"}\hlstd{,}\hlstr{"backward_data"}\hlstd{))}
+  \hlkwd{clusterExport}\hlstd{(cl,}\hlkwd{list}\hlstd{(}\hlstr{"makedata"}\hlstd{,} \hlstr{"backward_lm"}\hlstd{,} \hlstr{"MSE_cv"}\hlstd{,}
+                        \hlstr{"backward_data"}\hlstd{))}
   \hlstd{R} \hlkwb{=} \hlkwd{parSapply}\hlstd{(cl,} \hlnum{1}\hlopt{:}\hlstd{B,} \hlkwa{function}\hlstd{(}\hlkwc{i}\hlstd{,}\hlkwc{...}\hlstd{)}
     \hlstd{\{} \hlkwd{backward_data}\hlstd{(}\hlkwc{n}\hlstd{=n) \} )}
   \hlstd{MSE_values} \hlkwb{=} \hlkwd{matrix}\hlstd{(}\hlkwd{unlist}\hlstd{(R[}\hlstr{"MSE_test"}\hlstd{,]),} \hlkwc{nrow} \hlstd{= B,} \hlkwc{byrow} \hlstd{= T)}
@@ -334,20 +328,20 @@ Here I parallelize the code in order to run it faster. I make use of Amazon AWS 
               \hlkwc{variables}\hlstd{=variables,} \hlkwc{names}\hlstd{=names))}
 \hlstd{\}}
 
-\hlstd{B} \hlkwb{=} \hlnum{100} \hlcom{# TODO: Change to 1000}
+\hlstd{B} \hlkwb{=} \hlnum{1000}
 \hlstd{Rep_backward100} \hlkwb{=} \hlkwd{metric_values}\hlstd{(B,}\hlkwc{n}\hlstd{=}\hlnum{100}\hlstd{)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
-## [1] "Starting  7  cores..."
+\begin{verbatim}
+## [1] "Starting  39  cores..."
 ## [1] "Done."
-\end{lstlisting}
+\end{verbatim}
 \begin{alltt}
 \hlstd{Rep_backward1000} \hlkwb{=} \hlkwd{metric_values}\hlstd{(B,}\hlkwc{n}\hlstd{=}\hlnum{1000}\hlstd{)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
-## [1] "Starting  7  cores..."
+\begin{verbatim}
+## [1] "Starting  39  cores..."
 ## [1] "Done."
-\end{lstlisting}
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 \subsection{Plots}
@@ -355,11 +349,12 @@ The plots are scaled between 0 and 1 for each of the four criteria.
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlcom{# Plots -------------------------------------------------------------------}
+\hlcom{# Plots -------------------------------------------------------}
 
 \hlstd{plot_err} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{metrics}\hlstd{,}\hlkwc{n}\hlstd{)\{}
   \hlstd{m} \hlkwb{=} \hlkwd{sapply}\hlstd{(metrics, colMeans)}
-  \hlstd{scale_m} \hlkwb{=} \hlkwd{apply}\hlstd{(m,} \hlkwc{MARGIN} \hlstd{=} \hlnum{2}\hlstd{,} \hlkwc{FUN} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{X}\hlstd{) (X} \hlopt{-} \hlkwd{min}\hlstd{(X))}\hlopt{/}\hlkwd{diff}\hlstd{(}\hlkwd{range}\hlstd{(X)))}
+  \hlstd{scale_m} \hlkwb{=} \hlkwd{apply}\hlstd{(m,} \hlkwc{MARGIN} \hlstd{=} \hlnum{2}\hlstd{,}
+                  \hlkwc{FUN} \hlstd{=} \hlkwa{function}\hlstd{(}\hlkwc{X}\hlstd{) (X} \hlopt{-} \hlkwd{min}\hlstd{(X))}\hlopt{/}\hlkwd{diff}\hlstd{(}\hlkwd{range}\hlstd{(X)))}
   \hlkwd{plot}\hlstd{(scale_m[,}\hlnum{1}\hlstd{],}\hlkwc{type}\hlstd{=}\hlstr{"b"}\hlstd{,}\hlkwc{xlab}\hlstd{=}\hlstr{"p"}\hlstd{,}\hlkwc{ylab}\hlstd{=}\hlstr{"err"}\hlstd{,}
        \hlkwc{main}\hlstd{=}\hlkwd{paste}\hlstd{(}\hlstr{"Adjusted errors for n ="}\hlstd{,n),} \hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
   \hlkwd{lines}\hlstd{(}\hlkwc{type}\hlstd{=}\hlstr{"b"}\hlstd{,scale_m[,}\hlnum{2}\hlstd{],}\hlkwc{col}\hlstd{=}\hlstr{"blue"}\hlstd{)}
@@ -372,12 +367,12 @@ The plots are scaled between 0 and 1 for each of the four criteria.
 \hlkwd{plot_err}\hlstd{(Rep_backward100[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],}\hlnum{100}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-1} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5-1} 
 \begin{kframe}\begin{alltt}
 \hlkwd{plot_err}\hlstd{(Rep_backward1000[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],}\hlnum{1000}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-2} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5-2} 
 \begin{kframe}\begin{alltt}
 \hlstd{plot_model_sizes} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{metrics}\hlstd{,}\hlkwc{n}\hlstd{)\{}
   \hlstd{m} \hlkwb{=} \hlkwd{lapply}\hlstd{(metrics,} \hlkwa{function}\hlstd{(}\hlkwc{X}\hlstd{) \{}\hlkwd{apply}\hlstd{(X,}\hlnum{1}\hlstd{,which.min)\})}
@@ -394,12 +389,12 @@ The plots are scaled between 0 and 1 for each of the four criteria.
 \hlkwd{plot_model_sizes}\hlstd{(Rep_backward100[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],}\hlkwc{n}\hlstd{=}\hlnum{100}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-3} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5-3} 
 \begin{kframe}\begin{alltt}
 \hlkwd{plot_model_sizes}\hlstd{(Rep_backward1000[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],}\hlkwc{n}\hlstd{=}\hlnum{1000}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-4} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-5-4} 
 
 \end{knitrout}
 \subsection{Proportions}
@@ -407,21 +402,26 @@ Here I calculate the proportion of times each coefficient was left out (for the 
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlcom{# Proportions -------------------------------------------------------------}
+\hlcom{# Proportions -----------------------------------------------}
 
 \hlcom{## # left out first 15}
 \hlstd{prop_left} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{metrics}\hlstd{)\{}
-  \hlstd{optimum} \hlkwb{=} \hlkwd{lapply}\hlstd{(metrics[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],} \hlkwa{function}\hlstd{(}\hlkwc{X}\hlstd{) \{}\hlkwd{apply}\hlstd{(X,}\hlnum{1}\hlstd{,which.min)\})}
+  \hlstd{optimum} \hlkwb{=} \hlkwd{lapply}\hlstd{(metrics[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],} \hlkwa{function}\hlstd{(}\hlkwc{X}\hlstd{)}
+    \hlstd{\{}\hlkwd{apply}\hlstd{(X,}\hlnum{1}\hlstd{,which.min)\})}
   \hlstd{proportions_left} \hlkwb{=} \hlstd{optimum}
   \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{B)\{}
     \hlstd{proportions_left}\hlopt{$}\hlstd{MSE[i]} \hlkwb{=} \hlnum{1}\hlopt{-}\hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{MSE[i]}\hlopt{-}\hlnum{1}\hlstd{)],metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{MSE[i]}\hlopt{-}\hlnum{1}\hlstd{)],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
     \hlstd{proportions_left}\hlopt{$}\hlstd{AIC[i]} \hlkwb{=} \hlnum{1}\hlopt{-}\hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{AIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{AIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
     \hlstd{proportions_left}\hlopt{$}\hlstd{BIC[i]} \hlkwb{=} \hlnum{1}\hlopt{-}\hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{BIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{BIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
     \hlstd{proportions_left}\hlopt{$}\hlstd{Cp[i]} \hlkwb{=}  \hlnum{1}\hlopt{-}\hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{Cp[i]} \hlopt{-}\hlnum{1}\hlstd{)], metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{Cp[i]} \hlopt{-}\hlnum{1}\hlstd{)],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{1}\hlopt{:}\hlnum{15}\hlstd{]))}\hlopt{/}\hlnum{15}
   \hlstd{\}}
   \hlstd{proportions_left}
 \hlstd{\}}
@@ -432,17 +432,22 @@ Here I calculate the proportion of times each coefficient was left out (for the 
 
 \hlcom{## # kept last 5}
 \hlstd{prop_kept} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{metrics}\hlstd{)\{}
-  \hlstd{optimum} \hlkwb{=} \hlkwd{lapply}\hlstd{(metrics[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],} \hlkwa{function}\hlstd{(}\hlkwc{X}\hlstd{) \{}\hlkwd{apply}\hlstd{(X,}\hlnum{1}\hlstd{,which.min)\})}
+  \hlstd{optimum} \hlkwb{=} \hlkwd{lapply}\hlstd{(metrics[}\hlopt{-}\hlkwd{c}\hlstd{(}\hlnum{5}\hlstd{,}\hlnum{6}\hlstd{)],} \hlkwa{function}\hlstd{(}\hlkwc{X}\hlstd{)}
+    \hlstd{\{}\hlkwd{apply}\hlstd{(X,}\hlnum{1}\hlstd{,which.min)\})}
   \hlstd{proportions_kept} \hlkwb{=} \hlstd{optimum}
   \hlkwa{for} \hlstd{(i} \hlkwa{in} \hlnum{1}\hlopt{:}\hlstd{B)\{}
     \hlstd{proportions_kept}\hlopt{$}\hlstd{MSE[i]} \hlkwb{=} \hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{MSE[i]}\hlopt{-}\hlnum{1}\hlstd{)],metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{MSE[i]}\hlopt{-}\hlnum{1}\hlstd{)],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
     \hlstd{proportions_kept}\hlopt{$}\hlstd{AIC[i]} \hlkwb{=} \hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{AIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{AIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
     \hlstd{proportions_kept}\hlopt{$}\hlstd{BIC[i]} \hlkwb{=} \hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{BIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{BIC[i]}\hlopt{-}\hlnum{1}\hlstd{)],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
     \hlstd{proportions_kept}\hlopt{$}\hlstd{Cp[i]} \hlkwb{=}  \hlkwd{length}\hlstd{(}\hlkwd{intersect}\hlstd{(}
-      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{Cp[i])}\hlopt{-}\hlnum{1} \hlstd{],metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
+      \hlstd{metrics}\hlopt{$}\hlstd{variables[i,}\hlnum{1}\hlopt{:}\hlstd{(optimum}\hlopt{$}\hlstd{Cp[i])}\hlopt{-}\hlnum{1} \hlstd{],}
+      \hlstd{metrics}\hlopt{$}\hlstd{names[i,}\hlnum{16}\hlopt{:}\hlnum{20}\hlstd{]))}\hlopt{/}\hlnum{5}
   \hlstd{\}}
   \hlstd{proportions_kept}
 \hlstd{\}}
@@ -452,14 +457,18 @@ Here I calculate the proportion of times each coefficient was left out (for the 
 
 
 
-\hlcom{# Plot --------------------------------------------------------------------}
+\hlcom{# Plot ------------------------------------------------------}
 
 \hlstd{plot_kept} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{proportions_kept}\hlstd{,}\hlkwc{n}\hlstd{)\{}
   \hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),}\hlkwc{oma}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{0}\hlstd{))}
-  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{MSE,}\hlkwc{main}\hlstd{=}\hlstr{"MSE"}\hlstd{,}\hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=}\hlstr{"ratio"}\hlstd{)}
-  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{AIC,}\hlkwc{main}\hlstd{=}\hlstr{"AIC"}\hlstd{,}\hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=}\hlstr{"ratio"}\hlstd{)}
-  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{BIC,}\hlkwc{main}\hlstd{=}\hlstr{"BIC"}\hlstd{,}\hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=}\hlstr{"ratio"}\hlstd{)}
-  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{Cp,} \hlkwc{main}\hlstd{=}\hlstr{"Cp"}\hlstd{,}\hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=} \hlstr{"ratio"}\hlstd{)}
+  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{MSE,}\hlkwc{main}\hlstd{=}\hlstr{"MSE"}\hlstd{,}
+       \hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=}\hlstr{"ratio"}\hlstd{)}
+  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{AIC,}\hlkwc{main}\hlstd{=}\hlstr{"AIC"}\hlstd{,}
+       \hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=}\hlstr{"ratio"}\hlstd{)}
+  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{BIC,}\hlkwc{main}\hlstd{=}\hlstr{"BIC"}\hlstd{,}
+       \hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=}\hlstr{"ratio"}\hlstd{)}
+  \hlkwd{hist}\hlstd{(proportions_kept}\hlopt{$}\hlstd{Cp,} \hlkwc{main}\hlstd{=}\hlstr{"Cp"}\hlstd{,}
+       \hlkwc{xlim}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{xlab}\hlstd{=} \hlstr{"ratio"}\hlstd{)}
   \hlkwd{title}\hlstd{(}\hlkwd{paste}\hlstd{(}\hlstr{"Proportion of times each coefficient was put in\textbackslash{}nfor n = "}\hlstd{,n),}
         \hlkwc{outer}\hlstd{=}\hlnum{TRUE}\hlstd{)}
   \hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{1}\hlstd{,}\hlnum{1}\hlstd{),}\hlkwc{oma}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{))}
@@ -468,12 +477,12 @@ Here I calculate the proportion of times each coefficient was left out (for the 
 \hlkwd{plot_kept}\hlstd{(proportions_kept100,}\hlnum{100}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-1} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-1} 
 \begin{kframe}\begin{alltt}
 \hlkwd{plot_kept}\hlstd{(proportions_kept1000,}\hlnum{1000}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-2} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-2} 
 \begin{kframe}\begin{alltt}
 \hlstd{plot_left} \hlkwb{=} \hlkwa{function}\hlstd{(}\hlkwc{proportions_left}\hlstd{,}\hlkwc{n}\hlstd{)\{}
   \hlkwd{par}\hlstd{(}\hlkwc{mfrow}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{2}\hlstd{,}\hlnum{2}\hlstd{),}\hlkwc{oma}\hlstd{=}\hlkwd{c}\hlstd{(}\hlnum{0}\hlstd{,}\hlnum{0}\hlstd{,}\hlnum{3}\hlstd{,}\hlnum{0}\hlstd{))}
@@ -489,12 +498,12 @@ Here I calculate the proportion of times each coefficient was left out (for the 
 \hlkwd{plot_left}\hlstd{(proportions_left100,}\hlnum{100}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-3} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-3} 
 \begin{kframe}\begin{alltt}
 \hlkwd{plot_left}\hlstd{(proportions_left1000,}\hlnum{1000}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-7-4} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-6-4} 
 
 \end{knitrout}
 BIC has a heavier penalty term than AIC or Cp so it tends to favor simpler models, we can see it here: the proportion of left out parameters for the first 15 variables is greater for this statistic. This is also similar to Mallow’s Cp. AIC has the lowest error, as expected because it favors more complex models than BIC.We can also notice that as n increases, the empirical variance reduces.
@@ -509,15 +518,11 @@ Here I load the data with outputing the true beta.
 \end{alltt}
 
 
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'pls'}}
-
-{\ttfamily\noindent\itshape\color{messagecolor}{\#\# The following object is masked from 'package:stats':\\\#\# \\\#\#\ \ \ \  loadings}}\begin{alltt}
+{\ttfamily\noindent\itshape\color{messagecolor}{\#\# \\\#\# Attaching package: 'pls'\\\#\# \\\#\# The following object is masked from 'package:stats':\\\#\# \\\#\#\ \ \ \  loadings}}\begin{alltt}
 \hlkwd{rm}\hlstd{(}\hlkwc{list} \hlstd{=} \hlkwd{ls}\hlstd{())}
 \hlkwd{cat}\hlstd{(}\hlstr{"\textbackslash{}014"}\hlstd{)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
-\end{lstlisting}
-\begin{alltt}
+\end{kframe}\begin{kframe}\begin{alltt}
 \hlcom{# Data --------------------------------------------------}
 
 \hlstd{makedata}\hlkwb{=}\hlkwa{function}\hlstd{(}\hlkwc{p}\hlstd{=}\hlnum{20}\hlstd{,}\hlkwc{wh}\hlstd{=}\hlnum{15}\hlstd{,}\hlkwc{n}\hlstd{=}\hlnum{100}\hlstd{)\{}
@@ -538,16 +543,16 @@ Here I load the data with outputing the true beta.
 \hlstd{data}\hlkwb{=}\hlkwd{makedata}\hlstd{()}
 \hlstd{data}\hlopt{$}\hlstd{beta}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
-##          c          i          g          r          d 
-## 0.36787944 0.33050190 0.29692203 0.26675395 0.23965104 
-##          o          n          h          m          j 
-## 0.21530185 0.19342660 0.17377394 0.15611805 0.14025603 
-##          f          q          e          p          s 
-## 0.12600565 0.11320313 0.10170139 0.09136826 0.08208500 
-##          l          b          a          t          k 
-## 0.00000000 0.00000000 0.00000000 0.00000000 0.00000000
-\end{lstlisting}
+\begin{verbatim}
+##          c          i          g          r          d          o 
+## 0.36787944 0.33050190 0.29692203 0.26675395 0.23965104 0.21530185 
+##          n          h          m          j          f          q 
+## 0.19342660 0.17377394 0.15611805 0.14025603 0.12600565 0.11320313 
+##          e          p          s          l          b          a 
+## 0.10170139 0.09136826 0.08208500 0.00000000 0.00000000 0.00000000 
+##          t          k 
+## 0.00000000 0.00000000
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 \subsection{Replicate}
@@ -588,20 +593,20 @@ Here again I make use of parrallelization.
   \hlkwd{return}\hlstd{(}\hlkwd{list}\hlstd{(}\hlkwc{CV}\hlstd{=CV,}\hlkwc{beta}\hlstd{=beta,}\hlkwc{beta0}\hlstd{=beta0))}
 \hlstd{\}}
 
-\hlstd{B} \hlkwb{=} \hlnum{100} \hlcom{# TODO: Change to 1000}
+\hlstd{B} \hlkwb{=} \hlnum{1000}
 \hlstd{Rep_pcr100} \hlkwb{=} \hlkwd{pcr_rep}\hlstd{(B,}\hlkwc{n}\hlstd{=}\hlnum{100}\hlstd{)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
-## [1] "Starting  7  cores..."
+\begin{verbatim}
+## [1] "Starting  39  cores..."
 ## [1] "Done."
-\end{lstlisting}
+\end{verbatim}
 \begin{alltt}
 \hlstd{Rep_pcr1000} \hlkwb{=} \hlkwd{pcr_rep}\hlstd{(B,}\hlkwc{n}\hlstd{=}\hlnum{1000}\hlstd{)}
 \end{alltt}
-\begin{lstlisting}[basicstyle=\ttfamily,breaklines=true]
-## [1] "Starting  7  cores..."
+\begin{verbatim}
+## [1] "Starting  39  cores..."
 ## [1] "Done."
-\end{lstlisting}
+\end{verbatim}
 \end{kframe}
 \end{knitrout}
 \subsection{Plots}
@@ -617,7 +622,7 @@ Here again I make use of parrallelization.
         \hlkwc{ylab}\hlstd{=}\hlstr{"test error"}\hlstd{,}\hlkwc{names}\hlstd{=}\hlnum{0}\hlopt{:}\hlnum{20}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-10-1} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-9-1} 
 \begin{kframe}\begin{alltt}
 \hlcom{#n=1000}
 \hlkwd{boxplot}\hlstd{(Rep_pcr1000}\hlopt{$}\hlstd{CV,}
@@ -626,7 +631,7 @@ Here again I make use of parrallelization.
         \hlkwc{ylab}\hlstd{=}\hlstr{"test error"}\hlstd{,}\hlkwc{names}\hlstd{=}\hlnum{0}\hlopt{:}\hlnum{20}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-10-2} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-9-2} 
 \begin{kframe}\begin{alltt}
 \hlcom{#n=100}
 \hlkwd{boxplot}\hlstd{(Rep_pcr100}\hlopt{$}\hlstd{beta,}
@@ -636,7 +641,7 @@ Here again I make use of parrallelization.
 \hlkwd{points}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{20}\hlstd{,Rep_pcr1000}\hlopt{$}\hlstd{beta0,}\hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-10-3} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-9-3} 
 \begin{kframe}\begin{alltt}
 \hlcom{#n=1000}
 \hlkwd{boxplot}\hlstd{(Rep_pcr1000}\hlopt{$}\hlstd{beta,}
@@ -646,7 +651,7 @@ Here again I make use of parrallelization.
 \hlkwd{points}\hlstd{(}\hlnum{1}\hlopt{:}\hlnum{20}\hlstd{,Rep_pcr1000}\hlopt{$}\hlstd{beta0,}\hlkwc{col}\hlstd{=}\hlstr{"red"}\hlstd{)}
 \end{alltt}
 \end{kframe}
-\includegraphics[width=\maxwidth]{figure/unnamed-chunk-10-4} 
+\includegraphics[width=\maxwidth]{figure/unnamed-chunk-9-4} 
 
 \end{knitrout}
 The CV error goes down as we increase the number of components. The true beta remains in the confidence interval even if there seems to be a little biased.
